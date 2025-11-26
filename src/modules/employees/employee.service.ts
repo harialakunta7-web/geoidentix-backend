@@ -1,4 +1,4 @@
-import { Employee, Attendance } from '@prisma/client';
+import type { Employee, Attendance } from '@prisma/client';
 import prisma from '../../config/database';
 import { AppError } from '../../middlewares/error.middleware';
 import { logger } from '../../utils/logger';

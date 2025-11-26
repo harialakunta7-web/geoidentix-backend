@@ -1,4 +1,4 @@
-import { Tenant, PlanType } from '@prisma/client';
+import type { Tenant, PlanType } from '@prisma/client';
 import prisma from '../../config/database';
 import { hashPassword, comparePassword } from '../../utils/password';
 import {
