@@ -18,7 +18,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "types": ["node", "express", "cors", "jsonwebtoken"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
