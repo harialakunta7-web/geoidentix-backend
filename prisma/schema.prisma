@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantName String
+  gst       String   @unique
+  address   String
+  longitude Float
+  latitude  Float
+  username  String   @unique
+  password  String
+  planType  PlanType @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  employees   Employee[]
+  attendances Attendance[]
+  refreshTokens RefreshToken[]
+
+  @@map("tenants")
+}
+
+model Employee {
+  id                     String   @id @default(uuid()) @db.Uuid
+  tenantId               String   @db.Uuid
+  name                   String
+  photoUrl               String
+  embedding              Json     // Store as JSON array
+  salary                 Decimal  @db.Decimal(10, 2)
+  emergencyContactNumber String
+  contactNumber          String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  // Relations
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  attendances Attendance[]
+
+  @@index([tenantId])
+  @@map("employees")
+}
+
+model Attendance {
+  id               String    @id @default(uuid()) @db.Uuid
+  tenantId         String    @db.Uuid
+  employeeId       String    @db.Uuid
+  photoUrl         String
+  embedding        Json      // Store as JSON array
+  checkInTime      DateTime  @default(now())
+  matchConfidence  Float?    // Nullable, for paid plan only
+  createdAt        DateTime  @default(now())
+
+  // Relations
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([employeeId])
+  @@index([checkInTime])
+  @@map("attendances")
+}
+
+model RefreshToken {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @db.Uuid
+  tokenHash    String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  isRevoked    Boolean  @default(false)
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+enum PlanType {
+  FREE
+  PAID
+}
